@@ -21,16 +21,26 @@ typedef struct
   double x, y;
 } coordinate;
 
+typedef struct 
+{
+  double segments, radius, exclude_radius, rotation;
+} pizza;
+
 // since they are static (private because they are outside any
 // function) they will be initialized to 0 by default in any C/C++
 // compiler
 static coordinate coordinates;
 static coordinate center = {500, 300}; // Initialize to default values
+static pizza margherita = 
+  {
+    .segments		= 12,		/* 12 Pizza slice by default */
+    .radius		= 200, 		/* Default radius */
+    .exclude_radius	= 0,		/* Disabled by default  */
+    .rotation		= 0,			/* Disabled by default  */
+  };
 
-static double rotate = 0;
-int N = 12, radius = 200, blocky_circle_radius=0;
-gboolean meat = TRUE;
-double meats[9][2];
+static gboolean meat = TRUE;
+static double meats[9][2];
 
 static void draw_func (GtkDrawingArea *drawing_area, cairo_t *cr,
 		       int width, int height, gpointer user_data)
@@ -39,19 +49,19 @@ static void draw_func (GtkDrawingArea *drawing_area, cairo_t *cr,
     	 distY = coordinates.y - center.y,
 	 distance = sqrt( (distX*distX) + (distY*distY) );
 
-  char colors[N]; int i; for (i = 0; i < N; ++i) colors[i]=0;
+  char colors[(int) margherita.segments]; int i; for (i = 0; i < margherita.segments; ++i) colors[i]=0;
   
   double val = radToDeg(atan2(YFAR_CENTER - 0, XFAR_CENTER - 0));
   if (val < 0) val+=360.0;
   
   // if the distance is less than the circle's radius the point is inside!
-  if (distance <= radius && distance >= blocky_circle_radius)
+  if (distance <= margherita.radius && distance >= margherita.exclude_radius)
     {
       int kk;
-      for (kk = 0; kk < N; ++kk)
+      for (kk = 0; kk < margherita.segments; ++kk)
 	{
-	  if (val >= (kk*(360.0/N) + rotate)
-	      && val <= ((kk+1)*(360.0/N) + rotate)
+	  if (val >= (kk*(360.0/margherita.segments) + margherita.rotation)
+	      && val <= ((kk+1)*(360.0/margherita.segments) + margherita.rotation) /* FIXME: Known rotation bug */
 	      )
 	    {
 	      colors[kk] = 1;
@@ -61,21 +71,21 @@ static void draw_func (GtkDrawingArea *drawing_area, cairo_t *cr,
     }
   
   int count = 0;
-  for (i = 0; i < N; ++i)
+  for (i = 0; i < margherita.segments; ++i)
     {
 
       // start with outer circle
       cairo_move_to (cr, center.x, center.y);
-      cairo_arc (cr, center.x, center.y, radius,
-		 (count+rotate) * (M_PI/180), (count+360.0/N + rotate) * (M_PI/180));
+      cairo_arc (cr, center.x, center.y, margherita.radius,
+		 (count+margherita.rotation) * (M_PI/180), (count+360.0/margherita.segments + margherita.rotation) * (M_PI/180));
       cairo_set_source_rgb(cr, 0.8, 0.5, 0.2);
       cairo_fill(cr);
       cairo_close_path (cr);
 
       // pizza cuts
       cairo_move_to (cr, center.x, center.y);
-      cairo_arc (cr, center.x, center.y, radius,
-		 (count+rotate) * (M_PI/180), (count+360.0/N + rotate) * (M_PI/180));
+      cairo_arc (cr, center.x, center.y, margherita.radius,
+		 (count+margherita.rotation) * (M_PI/180), (count+360.0/margherita.segments + margherita.rotation) * (M_PI/180));
       cairo_set_source_rgb(cr,0,0,0);
       cairo_close_path (cr);
       cairo_stroke(cr);
@@ -83,8 +93,8 @@ static void draw_func (GtkDrawingArea *drawing_area, cairo_t *cr,
       // cheese
       cairo_new_path (cr);
       cairo_move_to (cr, center.x, center.y);
-      cairo_arc (cr, center.x, center.y, radius-(radius*0.1),
-		 (count+rotate) * (M_PI/180), (count+360.0/N + rotate) * (M_PI/180));
+      cairo_arc (cr, center.x, center.y, margherita.radius-(margherita.radius*0.1),
+		 (count+margherita.rotation) * (M_PI/180), (count+360.0/margherita.segments + margherita.rotation) * (M_PI/180));
       if (colors[i] == 1) { cairo_set_source_rgb (cr, colors[i], 0.0, 0.0); cairo_fill(cr); }
       else
 	{
@@ -93,22 +103,22 @@ static void draw_func (GtkDrawingArea *drawing_area, cairo_t *cr,
 	}
       cairo_close_path (cr);
 
-      count+=360.0/N;
+      count+=360.0/margherita.segments;
     }
 
   // meat
   if (meat)
     {
-      meats[0][0] = center.x + radius/2;      meats[0][1] = center.y + radius/2;
-      meats[1][0] = center.x + radius/3;      meats[1][1] = center.y + radius/4;
-      meats[2][0] = center.x - radius/3;      meats[2][1] = center.y - radius/4;
-      meats[3][0] = center.x - radius/2;      meats[3][1] = center.y - radius/2;
-      meats[4][0] = center.x + radius/2;      meats[4][1] = center.y - radius/2;
-      meats[5][0] = center.x - radius/2;      meats[5][1] = center.y + radius/2;
-      meats[6][0] = center.x + radius/3;      meats[6][1] = center.y - radius/4;
-      meats[7][0] = center.x - radius/3;      meats[7][1] = center.y + radius/4;
-      meats[7][0] = center.x - radius/2;      meats[7][1] = center.y;
-      meats[8][0] = center.x;      		meats[8][1] = center.y + radius/2;
+      meats[0][0] = center.x + margherita.radius/2;      meats[0][1] = center.y + margherita.radius/2;
+      meats[1][0] = center.x + margherita.radius/3;      meats[1][1] = center.y + margherita.radius/4;
+      meats[2][0] = center.x - margherita.radius/3;      meats[2][1] = center.y - margherita.radius/4;
+      meats[3][0] = center.x - margherita.radius/2;      meats[3][1] = center.y - margherita.radius/2;
+      meats[4][0] = center.x + margherita.radius/2;      meats[4][1] = center.y - margherita.radius/2;
+      meats[5][0] = center.x - margherita.radius/2;      meats[5][1] = center.y + margherita.radius/2;
+      meats[6][0] = center.x + margherita.radius/3;      meats[6][1] = center.y - margherita.radius/4;
+      meats[7][0] = center.x - margherita.radius/3;      meats[7][1] = center.y + margherita.radius/4;
+      meats[7][0] = center.x - margherita.radius/2;      meats[7][1] = center.y;
+      meats[8][0] = center.x;      		meats[8][1] = center.y + margherita.radius/2;
       
       meat = FALSE;
     }
@@ -117,12 +127,12 @@ static void draw_func (GtkDrawingArea *drawing_area, cairo_t *cr,
   for (mi = 0; mi < 9; ++mi)
     {
       cairo_set_source_rgb(cr,1,0.2,0.2);
-      cairo_arc (cr, meats[mi][0], meats[mi][1], radius*0.06, 0, 2*M_PI);
+      cairo_arc (cr, meats[mi][0], meats[mi][1], margherita.radius*0.06, 0, 2*M_PI);
       cairo_fill(cr);
     }
 
   // blocky_circle
-  cairo_arc (cr, center.x, center.y, blocky_circle_radius, 0, 2*M_PI);
+  cairo_arc (cr, center.x, center.y, margherita.exclude_radius, 0, 2*M_PI);
 
   // mouse pointer
   cairo_set_source_rgb (cr, 0.0, 0.0, 0.0);
@@ -138,14 +148,14 @@ static void moshi_cb (GtkEventControllerMotion *controller, double x,
 static void
 change_slices (GtkSpinButton *spin_button, gpointer user_data)
 {
-  N = gtk_spin_button_get_value_as_int (spin_button);
+  margherita.segments = gtk_spin_button_get_value_as_int (spin_button);
   gtk_widget_queue_draw(user_data);
 }
 
 static void
 change_radius (GtkSpinButton *spin_button, gpointer user_data)
 {
-  radius = gtk_spin_button_get_value_as_int (spin_button);
+  margherita.radius = gtk_spin_button_get_value_as_int (spin_button);
   meat = TRUE;
   gtk_widget_queue_draw(user_data);
 }
@@ -153,14 +163,14 @@ change_radius (GtkSpinButton *spin_button, gpointer user_data)
 static void
 change_rotation (GtkSpinButton *spin_button, gpointer user_data)
 {
-  rotate = gtk_spin_button_get_value_as_int (spin_button);
+  margherita.rotation = gtk_spin_button_get_value_as_int (spin_button);
   gtk_widget_queue_draw(user_data);
 }
 
 static void
 change_blocky (GtkSpinButton *spin_button, gpointer user_data)
 {
-  blocky_circle_radius = gtk_spin_button_get_value_as_int (spin_button);
+  margherita.exclude_radius = gtk_spin_button_get_value_as_int (spin_button);
   gtk_widget_queue_draw(user_data);
 }
 
@@ -216,7 +226,7 @@ void activate (GtkApplication *application, gpointer user_data)
   g_signal_connect (spbut, "value-changed", G_CALLBACK (change_rotation), da);
   gtk_box_append (GTK_BOX(vbox), spbut);
 
-  la = gtk_label_new("blocky circle radius:");
+  la = gtk_label_new("excluding circle radius:");
   gtk_box_append (GTK_BOX(vbox), la);
   spbut = gtk_spin_button_new_with_range (0, 360, 1);
   g_signal_connect (spbut, "value-changed", G_CALLBACK (change_blocky), da);
