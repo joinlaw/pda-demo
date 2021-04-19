@@ -31,7 +31,7 @@ static void change_radius (GtkSpinButton *spin_button,
 static void change_rotation (GtkSpinButton *spin_button,
 			     gpointer user_data);
 
-static void change_blocky (GtkSpinButton *spin_button,
+static void change_exclude_radius (GtkSpinButton *spin_button,
 			   gpointer user_data);
 
 static void clicky_cb (GtkGestureClick *gesture, int n_press,
@@ -190,7 +190,7 @@ change_rotation (GtkSpinButton *spin_button, gpointer user_data)
 }
 
 static void
-change_blocky (GtkSpinButton *spin_button, gpointer user_data)
+change_exclude_radius (GtkSpinButton *spin_button, gpointer user_data)
 {
   margherita.exclude_radius = gtk_spin_button_get_value_as_int (spin_button);
   gtk_widget_queue_draw(user_data);
@@ -252,7 +252,7 @@ void activate (GtkApplication *application, gpointer user_data)
   la = gtk_label_new("excluding circle radius:");
   gtk_box_append (GTK_BOX(vbox), la);
   spbut = gtk_spin_button_new_with_range (0, 360, 1);
-  g_signal_connect (spbut, "value-changed", G_CALLBACK (change_blocky), da);
+  g_signal_connect (spbut, "value-changed", G_CALLBACK (change_exclude_radius), da);
   gtk_box_append (GTK_BOX(vbox), spbut);
   
   gtk_window_set_child (GTK_WINDOW (win), vbox);
