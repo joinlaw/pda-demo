@@ -52,7 +52,7 @@ typedef struct
 // function) they will be initialized to 0 by default in any C/C++
 // compiler
 static coordinate coordinates;
-static coordinate center = {500, 300}; // Initialize to default values
+static coordinate center = {200, 200}; // Initialize to default values
 static pizza margherita = 
   {
     .segments		= 12,		/* 12 Pizza slice by default */
@@ -209,6 +209,8 @@ static void clicky_cb (GtkGestureClick *gesture, int n_press, double x, double y
 void activate (GtkApplication *application, gpointer user_data)
 {
   GtkWidget *win = gtk_application_window_new (application);
+  gtk_window_set_title (GTK_WINDOW(win), "Pizza Detection Algorithm Demo");
+  gtk_window_set_default_size (GTK_WINDOW(win), 300, 500);
 
   GtkWidget *da = gtk_drawing_area_new ();
   gtk_drawing_area_set_draw_func (GTK_DRAWING_AREA (da), draw_func, NULL, NULL);
@@ -240,7 +242,6 @@ void activate (GtkApplication *application, gpointer user_data)
   spbut = gtk_spin_button_new_with_range (5, 1000, 1);
   g_signal_connect (spbut, "value-changed", G_CALLBACK (change_radius), da);
   gtk_box_append (GTK_BOX(vbox), spbut);
-
 
   la = gtk_label_new("rotation:");
   gtk_box_append (GTK_BOX(vbox), la);
