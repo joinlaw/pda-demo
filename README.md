@@ -1,4 +1,4 @@
-# Pizza Detection Demo
+# Pizza Detection Demo (Segments independent solution)
 
 This project demonstrate the implementation of collision detection on segments of a circle.
 
