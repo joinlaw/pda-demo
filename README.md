@@ -1,4 +1,4 @@
-# Pizza Detection Demo (General Algorithm)
+# Pizza Detection Demo (General Segments independent Algorithm)
 
 This project demonstrate the implementation of collision detection on segments of a circle.
 
