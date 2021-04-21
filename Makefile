@@ -20,7 +20,7 @@ HEADERS = src/pda.h
 SRC = src/demo.c src/pda.c
 BIN = demo
 CC ?= gcc
-
+AS = *~ src/*~
 
 $(BIN): $(SRC) $(HEADERS)
 	$(CC) $(C_FLAGS) $(CXX_FLAGS) $(SRC) $(HEADERS) -o $(BIN)
@@ -28,10 +28,13 @@ $(BIN): $(SRC) $(HEADERS)
 debug: $(SRC) $(HEADERS)
 	$(CC) $(C_FLAGS) $(DEBUG) $(SRC) $(HEADERS) -o $(BIN)
 
-clean: $(BIN)
-	rm $(BIN) *~ src/*~
+clean-as: $(AS)
+	rm *~ src/*~
+
+clean: $(BIN) clean-as
+	rm $(BIN)
 
 check-syntax:           # flymake support
 	$(CC) -Wall -pedantic -Wextra --coverage -ftest-coverage -fanalyzer -std=gnu99 $(CFLAGS) $(CHK_SOURCES)
 
-.PHONY: check-syntax clean debug
+.PHONY: check-syntax clean debug clean-as
