@@ -48,6 +48,10 @@ Generally don't put braces with curly brackets in the same line ;).
 
 when rotating too much the algorithm will lose the control partially on some segments and rotating even further will broke the collision detection.
 
+## Critical Security Bugs
+
+Critical security bugs should not revealed into the public until they are solved so since github doesn't support private issues you should report them at this email address: =mrfantastic at firemail dot cc=
+
 ## License
 
 Distributed under the GPLv3 or later License. See LICENSE for more information.
